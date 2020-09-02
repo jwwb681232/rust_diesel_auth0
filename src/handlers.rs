@@ -3,7 +3,7 @@ use super::schema::users::dsl::*;
 use super::Pool;
 use crate::diesel::QueryDsl;
 use crate::diesel::RunQueryDsl;
-use actix_web::{web, Error, HttpResponse,Responder};
+use actix_web::{web, Error, HttpResponse};
 use diesel::dsl::{delete,insert_into};
 use serde::{Deserialize,Serialize};
 use std::vec::Vec;
@@ -41,7 +41,7 @@ pub async fn get_user_by_id(db: web::Data<Pool>,user_id: web::Path<u32>) -> Resu
 
 fn db_get_user_by_id(pool: web::Data<Pool>,user_id: u32)->Result<User,diesel::result::Error>{
     let conn = pool.get().unwrap();
-    users.find(user_id).execute(&conn)?
+    users.find(user_id).first(&conn)
 }
 
 
@@ -64,7 +64,8 @@ fn add_single_user(pool: web::Data<Pool>,item: web::Json<InputUser>)->Result<Use
         created_at: chrono::Local::now().naive_local(),
     };
 
-    let res = insert_into(users).values(&new_user).execute(&conn)?;
+    //todo mysql is no support RETURNING clause
+    let res = insert_into(users).values(&new_user).returning(id).get_results(&conn)?;
     Ok(res)
 }
 
