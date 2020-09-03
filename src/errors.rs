@@ -4,9 +4,11 @@ use derive_more::Display;
 #[derive(Debug,Display)]
 pub enum ServiceError{
     #[display(fmt="Internal Server Error")]
+    #[allow(dead_code)]
     InternalServerError,
 
     #[display(fmt="Bad Request: {}", _0 )]
+    #[allow(dead_code)]
     BadRequest(String),
 
     #[display(fmt="JWKSFetchError")]

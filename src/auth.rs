@@ -1,5 +1,7 @@
 use crate::errors::ServiceError;
-use alcoholic_jwt::{token_kid, validate, Validation, JWKS, ValidationError};
+use alcoholic_jwt::{token_kid, validate, Validation, JWKS};
+#[allow(unused_imports)] 
+use alcoholic_jwt::ValidationError;
 use serde::{Deserialize,Serialize};
 use std::error::Error;
 

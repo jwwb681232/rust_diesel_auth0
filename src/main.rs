@@ -8,6 +8,7 @@ use diesel::r2d2::{self, ConnectionManager};
 use actix_web_httpauth::extractors::bearer::{BearerAuth, Config};
 use actix_web_httpauth::extractors::AuthenticationError;
 use actix_web_httpauth::middleware::HttpAuthentication;
+#[allow(unused_imports)]
 use crate::errors::ServiceError;
 
 mod errors;
