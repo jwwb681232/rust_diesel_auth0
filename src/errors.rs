@@ -7,7 +7,7 @@ pub enum ServiceError{
     InternalServerError,
 
     #[display(fmt="Bad Request: {}", _0 )]
-    BadRequest,
+    BadRequest(String),
 
     #[display(fmt="JWKSFetchError")]
     JWKSFetchError,
