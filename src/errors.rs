@@ -12,6 +12,8 @@ pub enum ServiceError{
     BadRequest(String),
 
     #[display(fmt="JWKSFetchError")]
+
+    #[allow(dead_code)]
     JWKSFetchError,
 }
 
