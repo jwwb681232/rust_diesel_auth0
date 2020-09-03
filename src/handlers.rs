@@ -85,3 +85,28 @@ fn delete_single_user(pool: web::Data<Pool>,user_id: u32)-> Result<usize,diesel:
     let count = delete(users.find(user_id)).execute(&conn)?;
     Ok(count)
 }
+
+
+/**************************************************************************/
+#[derive(Debug,Deserialize,Serialize)]
+pub struct TokenUser{
+    pub name: String,
+    pub email: String
+}
+
+pub async fn token(query_user: web::Query<TokenUser>)->Result<HttpResponse,Error>{    
+    Ok(
+        HttpResponse::Ok()
+            .json(
+                TokenUser {
+                    name: query_user.name.to_string(),
+                    email: query_user.email.to_string(),
+                }
+            )
+    )
+}
+
+// fn db_get_user_by_id(pool: web::Data<Pool>,user_id: u32)->Result<User,diesel::result::Error>{
+//     let conn = pool.get().unwrap();
+//     users.find(user_id).first(&conn)
+// }
