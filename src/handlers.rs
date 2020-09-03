@@ -50,12 +50,12 @@ pub async fn add_user(db: web::Data<Pool>,item: web::Json<InputUser>) -> Result<
     Ok(
         web::block(move || add_single_user(db,item))
             .await
-            .map(|user|HttpResponse::Ok().json(user))
+            .map(|inserted|HttpResponse::Ok().json(inserted))
             .map_err(|_|HttpResponse::InternalServerError())?
     )
 }
 
-fn add_single_user(pool: web::Data<Pool>,item: web::Json<InputUser>)->Result<User,diesel::result::Error>{
+fn add_single_user(pool: web::Data<Pool>,item: web::Json<InputUser>)->Result<usize,diesel::result::Error>{
     let conn = pool.get().unwrap();
     let new_user = NewUser{
         first_name: &item.first_name,
@@ -64,9 +64,9 @@ fn add_single_user(pool: web::Data<Pool>,item: web::Json<InputUser>)->Result<Use
         created_at: chrono::Local::now().naive_local(),
     };
 
-    //todo mysql is no support RETURNING clause
-    let res = insert_into(users).values(&new_user).returning(id).get_results(&conn)?;
-    Ok(res)
+    Ok(
+        insert_into(users).values(&new_user).execute(&conn)?
+    )
 }
 
 
