@@ -91,16 +91,33 @@ fn delete_single_user(pool: web::Data<Pool>,user_id: u32)-> Result<usize,diesel:
 #[derive(Debug,Deserialize,Serialize)]
 pub struct TokenUser{
     pub name: String,
-    pub email: String
+    pub email: String,
+    pub token: Option<String>
 }
 
-pub async fn token(query_user: web::Query<TokenUser>)->Result<HttpResponse,Error>{    
+pub async fn token(query_user: web::Query<TokenUser>)->Result<HttpResponse,Error>{
+    use jsonwebtoken::{Header,EncodingKey,encode};
+
+    #[derive(Debug, Serialize, Deserialize)]
+    struct Claims {
+        sub: String,    
+        exp: usize,
+    };
+
+    let my_claims = Claims{
+        sub: "sss".to_string(),
+        exp: 86400
+    };
+    
+    let token = encode(&Header::default(), &my_claims, &EncodingKey::from_secret("secret".as_ref())).unwrap();
+
     Ok(
         HttpResponse::Ok()
             .json(
                 TokenUser {
                     name: query_user.name.to_string(),
                     email: query_user.email.to_string(),
+                    token: Some(token)
                 }
             )
     )
