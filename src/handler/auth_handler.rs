@@ -1,6 +1,6 @@
 use actix_web::{web, HttpResponse};
 use serde::{Serialize,Deserialize};
-use crate::error::Error;
+use crate::error::ServiceError;
 
 #[derive(Serialize, Deserialize)]
 pub struct RegisterFrom {
@@ -9,16 +9,9 @@ pub struct RegisterFrom {
     pub password: String,
 }
 
-pub async fn index(_form: web::Form<RegisterFrom>) -> Result<HttpResponse,Error> {
-    Err(Error {
-        msg: "an example error message".to_string(),
-        status: 200,
-    })
-    /*Ok(
-        HttpResponse::Ok().json(RegisterFrom {
-            name: form.name.to_string(),
-            email: form.email.to_string(),
-            password: form.password.to_string(),
-        })
-    )*/
+pub async fn index(_form: web::Form<RegisterFrom>) -> Result<HttpResponse,ServiceError> {
+    Ok(
+        HttpResponse::Ok().json({})
+    )
+    //Err(ServiceError::new(StatusCode::NOT_FOUND, "NotFound".to_string()))
 }

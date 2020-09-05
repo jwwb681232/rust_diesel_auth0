@@ -1,7 +1,9 @@
 use actix_web::{HttpServer,web,App};
 
+mod models;
 mod handler;
 mod error;
+
 
 #[actix_rt::main]
 async fn main()->std::io::Result<()>{
