@@ -3,10 +3,11 @@ use super::schema::users::dsl::*;
 use super::Pool;
 use crate::diesel::QueryDsl;
 use crate::diesel::RunQueryDsl;
-use actix_web::{web, Error, HttpResponse};
+use actix_web::{web, Error, HttpResponse, HttpRequest};
 use diesel::dsl::{delete,insert_into};
 use serde::{Deserialize,Serialize};
 use std::vec::Vec;
+use crate::errors::RDAError;
 
 #[derive(Debug,Deserialize,Serialize)]
 pub struct InputUser{
@@ -95,20 +96,20 @@ pub struct TokenUser{
     pub token: Option<String>
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+struct Claims {
+    sub: String,
+    exp: usize,
+}
+
 pub async fn token(query_user: web::Query<TokenUser>)->Result<HttpResponse,Error>{
     use jsonwebtoken::{Header,EncodingKey,encode};
 
-    #[derive(Debug, Serialize, Deserialize)]
-    struct Claims {
-        sub: String,    
-        exp: usize,
+    let my_claims = Claims{
+        sub: "b@b.com".to_string(),
+        exp: 1601878566
     };
 
-    let my_claims = Claims{
-        sub: "sss".to_string(),
-        exp: 86400
-    };
-    
     let token = encode(&Header::default(), &my_claims, &EncodingKey::from_secret("secret".as_ref())).unwrap();
 
     Ok(
@@ -123,7 +124,19 @@ pub async fn token(query_user: web::Query<TokenUser>)->Result<HttpResponse,Error
     )
 }
 
-// fn db_get_user_by_id(pool: web::Data<Pool>,user_id: u32)->Result<User,diesel::result::Error>{
-//     let conn = pool.get().unwrap();
-//     users.find(user_id).first(&conn)
-// }
+/**************************************************************************/
+pub async fn valid_token(req:HttpRequest)->Result<HttpResponse,RDAError>{
+    use jsonwebtoken::{decode, DecodingKey, Validation};
+    let key = b"secret";
+    let token = req.headers().get("Authorization").unwrap().to_str().unwrap();
+
+    let validation = Validation { sub: Some("b@b.com".to_string()), ..Validation::default() };
+    let token_data = match decode::<Claims>(&token,&DecodingKey::from_secret(key),&validation) {
+        Ok(c)=>c,
+        Err(_)=>panic!("Some error")
+    };
+
+    Ok(
+        HttpResponse::Ok().json(token_data.claims)
+    )
+}

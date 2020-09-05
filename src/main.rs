@@ -6,7 +6,7 @@ use diesel::prelude::*;
 use diesel::r2d2::{self, ConnectionManager};
 
 #[allow(unused_imports)]
-use crate::errors::ServiceError;
+//use crate::errors::ServiceError;
 
 mod errors;
 mod handlers;
@@ -19,7 +19,7 @@ pub type Pool = r2d2::Pool<ConnectionManager<MysqlConnection>>;
 async fn main() -> std::io::Result<()> {
     dotenv::dotenv().ok();
     std::env::set_var("RUST_LOG", "actix_web=debug");
-    
+
     env_logger::init();
 
     let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
@@ -29,8 +29,8 @@ async fn main() -> std::io::Result<()> {
         .build(manager)
         .expect("Failed to create pool.");
 
-    HttpServer::new(move || {    
-        App::new()            
+    HttpServer::new(move || {
+        App::new()
             .wrap(Logger::new("%a %U %t"))
             .data(pool.clone())
             .route("/users", web::get().to(handlers::get_users))
@@ -38,6 +38,7 @@ async fn main() -> std::io::Result<()> {
             .route("/users", web::post().to(handlers::add_user))
             .route("/users/{id}", web::delete().to(handlers::delete_user))
             .route("/token", web::get().to(handlers::token))
+            .route("/valid-token", web::get().to(handlers::valid_token))
     })
         .bind("127.0.0.1:8088")?
         .run()

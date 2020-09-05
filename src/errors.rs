@@ -1,34 +1,54 @@
-use actix_web::{error::ResponseError,HttpResponse};
-use derive_more::Display;
+use actix_web::{get, web, App, HttpResponse, HttpServer, error::ResponseError, http::StatusCode};
 
-#[derive(Debug,Display)]
-pub enum ServiceError{
-    #[display(fmt="Internal Server Error")]
-    #[allow(dead_code)]
-    InternalServerError,
+use thiserror::Error;
 
-    #[display(fmt="Bad Request: {}", _0 )]
-    #[allow(dead_code)]
-    BadRequest(String),
+#[derive(Debug, Error)]
+pub enum RDAError {
+    #[error("Resource Not Found")]
+    NotFound,
 
-    #[display(fmt="JWKSFetchError")]
+    #[error("You are forbidden to access request")]
+    Forbidden,
 
-    #[allow(dead_code)]
-    JWKSFetchError,
+    #[error("Unknown Internal Error")]
+    Unknown,
 }
 
-impl ResponseError for ServiceError {
-    fn error_response(&self) ->HttpResponse {
-        match self{
-            ServiceError::InternalServerError=>{
-                HttpResponse::InternalServerError().json("Internal Server Error, Please try later")
-            },
-            ServiceError::BadRequest(ref message) => {
-                HttpResponse::BadRequest().json(message)
-            },
-            ServiceError::JWKSFetchError=>{
-                HttpResponse::InternalServerError().json("Could not fetch JWKS")
-            },
+impl RDAError {
+    pub fn name(&self) -> String {
+        match self {
+            RDAError::NotFound => "NotFound".to_string(),
+            RDAError::Forbidden => "Forbidden".to_string(),
+            RDAError::Unknown => "Unknown".to_string(),
         }
     }
+}
+
+impl ResponseError for RDAError {
+    fn status_code(&self) -> StatusCode {
+        match *self {
+            RDAError::NotFound => StatusCode::NOT_FOUND,
+            RDAError::Forbidden => StatusCode::FORBIDDEN,
+            RDAError::Unknown => StatusCode::INTERNAL_SERVER_ERROR,
+        }
+    }
+
+    fn error_response(&self) -> HttpResponse {
+        let status_code = self.status_code();
+
+        let error_response = ErrorResponse {
+            code: status_code.as_u16(),
+            error: self.to_string(),
+            message: self.name(),
+        };
+
+        HttpResponse::build(status_code).json(error_response)
+    }
+}
+
+#[derive(Serialize)]
+struct ErrorResponse {
+    code: u16,
+    error: String,
+    message: String,
 }
