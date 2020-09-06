@@ -41,3 +41,10 @@ impl ResponseError for ApiError{
 pub async fn index() -> actix_web::Result<String, ApiError> {
     Err(ApiError::new(500,"NotFound".to_string()))
 }
+
+//example: impl other error
+impl From<actix_web::error::Error> for ApiError {
+    fn from(error: ActixError) -> ApiError {
+        ApiError::new(500, error.to_string())
+    }
+}
