@@ -1,5 +1,6 @@
 use actix_web::{web, HttpResponse};
 use serde::{Serialize,Deserialize};
+use serde_json::json;
 use crate::error::ServiceError;
 
 #[derive(Serialize, Deserialize)]
@@ -11,7 +12,7 @@ pub struct RegisterFrom {
 
 pub async fn index(_form: web::Form<RegisterFrom>) -> Result<HttpResponse,ServiceError> {
     Ok(
-        HttpResponse::Ok().json({})
+        HttpResponse::Ok().json("")
     )
     //Err(ServiceError::new(StatusCode::NOT_FOUND, "NotFound".to_string()))
 }

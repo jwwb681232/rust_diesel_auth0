@@ -1,45 +1,32 @@
-// use std::fmt::{Display, Formatter, Result as FmtResult};
-// use actix_web::{web, ResponseError};
-// use serde_json::{json, to_string_pretty};
-// use serde::Serialize;
-// use actix_web::http::StatusCode;
+use actix_web::{error::{BlockingError, ResponseError}, http::StatusCode, HttpResponse};
+use derive_more::Display;
 
-// #[derive(Debug, Serialize)]
-// pub struct Error {
-//     pub msg: String,
-//     pub status: u16,
-// }
-
-// impl Display for Error {
-//     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
-//         write!(f, "{}", to_string_pretty(self).unwrap())
-//     }
-// }
-
-// impl ResponseError for Error {
-//     fn error_response(&self) -> web::HttpResponse {
-//         let err_json = json!({ "error": self.msg });
-//         web::HttpResponse::build(StatusCode::from_u16(self.status).unwrap()).json(err_json)
-//     }
-// }
-
-use crate::models::response::ResponseBody;
-use actix_web::{http::StatusCode};
-
-pub struct ServiceError{
-    pub http_status:StatusCode,
-    pub body: ResponseBody<String>,
+#[derive(Debug, Display, PartialEq)]
+pub enum ApiError {
+    BadRequest(String),
+    NotFound(String),
+    Unauthorized(String),
 }
 
+#[derive(Debug, Deserialize, Serialize)]
+pub struct ErrorResponse {
+    errors: Vec<String>,
+}
 
-impl ServiceError {
-    pub fn new(http_status:StatusCode,message:String)->ServiceError{
-        ServiceError{
-            http_status,
-            body:ResponseBody{
-                message,
-                data: String::new()
-            }
+impl ResponseError for ApiError {
+    fn error_response(&self) -> HttpResponse {
+        match self {
+            ApiError::BadRequest(error) => HttpResponse::BadRequest().json::<ErrorResponse>(error.into()),
+            ApiError::NotFound(message) => HttpResponse::NotFound().json::<ErrorResponse>(message.into()),
+            ApiError::Unauthorized(error) => HttpResponse::Unauthorized().json::<ErrorResponse>(message.into()),
+        }
+    }
+}
+
+impl From<&String> for ErrorResponse {
+    fn from(error: &String) -> Self {
+        ErrorResponse {
+            errors: vec![error.into()],
         }
     }
 }
