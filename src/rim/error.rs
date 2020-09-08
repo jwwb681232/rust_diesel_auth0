@@ -3,6 +3,7 @@ use serde::{Serialize, Deserialize};
 use actix_web::{ResponseError, HttpResponse};
 use actix_web::http::StatusCode;
 use serde_json::json;
+use diesel::result::Error;
 
 pub type ApiResult<T> = actix_web::Result<T,ApiError>;
 
@@ -32,5 +33,19 @@ impl ResponseError for ApiError {
                 "message": self.message
             })
         )
+    }
+}
+
+impl From<diesel::result::Error> for ApiError {
+    fn from(e: Error) -> Self {
+        match e {
+            _=> ApiError::new(500,"Database Error")
+        }
+    }
+}
+
+impl From<serde_json::error::Error> for ApiError{
+    fn from(_: serde_json::error::Error) -> Self {
+        ApiError::new(500,"Database Error")
     }
 }
