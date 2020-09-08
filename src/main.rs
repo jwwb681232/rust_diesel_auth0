@@ -1,6 +1,7 @@
 use actix_web::{HttpServer,web,App};
 
 mod handler;
+mod rim;
 
 #[actix_rt::main]
 async fn main()->std::io::Result<()>{
