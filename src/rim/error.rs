@@ -4,6 +4,7 @@ use actix_web::{ResponseError, HttpResponse};
 use actix_web::http::StatusCode;
 use serde_json::json;
 use diesel::result::Error;
+use actix_web::error::JsonPayloadError;
 
 pub type ApiResult<T> = actix_web::Result<T,ApiError>;
 
@@ -26,8 +27,14 @@ impl Display for ApiError {
 }
 
 impl ResponseError for ApiError {
+    fn status_code(&self) -> StatusCode {
+        match *self {
+            _ => StatusCode::OK
+        }
+    }
+
     fn error_response(&self) -> HttpResponse {
-        HttpResponse::build(StatusCode::default()).json(
+        HttpResponse::build(StatusCode::OK).json(
             json!({
                 "status_code":self.status_code,
                 "message": self.message
@@ -36,16 +43,8 @@ impl ResponseError for ApiError {
     }
 }
 
-impl From<diesel::result::Error> for ApiError {
-    fn from(e: Error) -> Self {
-        match e {
-            _=> ApiError::new(500,"Database Error")
-        }
+/*impl From<actix_web::error::Error> for ApiError{
+    fn from(_: actix_web::error::Error) -> Self {
+        ApiError::new(500,"TTT")
     }
-}
-
-impl From<serde_json::error::Error> for ApiError{
-    fn from(_: serde_json::error::Error) -> Self {
-        ApiError::new(500,"Database Error")
-    }
-}
+}*/
