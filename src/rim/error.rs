@@ -3,8 +3,6 @@ use serde::{Serialize, Deserialize};
 use actix_web::{ResponseError, HttpResponse};
 use actix_web::http::StatusCode;
 use serde_json::json;
-use diesel::result::Error;
-use actix_web::error::JsonPayloadError;
 
 pub type ApiResult<T> = actix_web::Result<T,ApiError>;
 

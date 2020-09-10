@@ -1,7 +1,6 @@
 use actix_web::error::{JsonPayloadError, InternalError};
 use actix_web::{HttpRequest, HttpResponse};
 use actix_web::error::Error;
-use serde_json::json;
 use crate::rim::error::ApiError;
 
 pub fn json_error_handler(err: JsonPayloadError, _req: &HttpRequest) -> Error {

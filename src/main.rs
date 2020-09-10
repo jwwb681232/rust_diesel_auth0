@@ -5,12 +5,13 @@ use actix_web::{web, App, HttpServer, middleware::Logger, FromRequest};
 use diesel::prelude::*;
 use diesel::r2d2::{self, ConnectionManager};
 use crate::handler::auth_handler::InputUser;
-use crate::handler::error_handler::json_error_handler;
+use crate::extractor::error_handler::json_error_handler;
 
 mod schema;
 mod handler;
 mod model;
 mod rim;
+mod extractor;
 
 pub type Pool = r2d2::Pool<ConnectionManager<MysqlConnection>>;
 
