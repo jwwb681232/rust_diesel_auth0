@@ -1,4 +1,4 @@
-use actix_web::{web,FromRequest};
+use actix_web::{web, FromRequest};
 use crate::handler::auth_handler;
 use crate::extractor::error_handler::json_error_handler;
 use crate::handler::auth_handler::InputUser;

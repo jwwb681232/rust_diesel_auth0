@@ -30,7 +30,7 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         App::new()
-            .wrap(Logger::new("%a %U %t"))
+            .wrap(Logger::new("%a %r %s %t"))
             .data(pool.clone())
             .configure(route::user_route::route)
     })
