@@ -1,17 +1,16 @@
 #[macro_use]
 extern crate diesel;
 
-use actix_web::{web, App, HttpServer, middleware::Logger, FromRequest};
+use actix_web::{ App, HttpServer, middleware::Logger};
 use diesel::prelude::*;
 use diesel::r2d2::{self, ConnectionManager};
-use crate::handler::auth_handler::InputUser;
-use crate::extractor::error_handler::json_error_handler;
 
 mod schema;
 mod handler;
 mod model;
 mod rim;
 mod extractor;
+mod route;
 
 pub type Pool = r2d2::Pool<ConnectionManager<MysqlConnection>>;
 
@@ -33,17 +32,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .wrap(Logger::new("%a %U %t"))
             .data(pool.clone())
-            .route("/users", web::get().to(handler::auth_handler::get_users))
-            .route("/users/{id}", web::get().to(handler::auth_handler::get_user_by_id))
-            //.route("/users", web::post().to(handler::auth_handler::add_user))
-            .route("/users/{id}", web::delete().to(handler::auth_handler::delete_user))
-            .service(
-                web::resource("/users")
-                    .app_data(actix_web::web::Json::<InputUser>::configure(|cfg|{
-                        cfg.error_handler(json_error_handler)
-                    }))
-                    .route(web::post().to(handler::auth_handler::add_user))
-            )
+            .configure(route::user_route::route)
     })
         .bind("127.0.0.1:8088")?
         .run()
