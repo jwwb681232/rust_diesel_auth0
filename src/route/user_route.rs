@@ -1,7 +1,7 @@
 use actix_web::{web, FromRequest};
 use crate::handler::auth_handler;
 use crate::extractor::error_handler::json_error_handler;
-use crate::handler::auth_handler::InputUser;
+use crate::model::auth_model::InputUser;
 
 pub fn route(cfg: &mut web::ServiceConfig) {
     cfg.service(

@@ -1,4 +1,4 @@
-use crate::model::auth_model::{NewUser, User};
+use crate::model::auth_model::{NewUser, User, InputUser};
 use crate::schema::users::dsl::*;
 use crate::diesel::QueryDsl;
 use crate::diesel::RunQueryDsl;
@@ -6,17 +6,9 @@ use crate::rim::error::{ApiResult, ApiError};
 
 use actix_web::{web, HttpResponse};
 use diesel::dsl::{delete, insert_into};
-use serde::{Deserialize, Serialize};
 use std::vec::Vec;
 
 use crate::Pool;
-
-#[derive(Debug, Deserialize, Serialize)]
-pub struct InputUser {
-    pub first_name: String,
-    pub last_name: String,
-    pub email: String,
-}
 
 /**************************************************************************/
 pub async fn get_users(db: web::Data<Pool>) -> ApiResult<HttpResponse> {
