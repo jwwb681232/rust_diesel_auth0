@@ -33,6 +33,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(Logger::new("%a %r %s %t"))
             .data(pool.clone())
             .configure(route::user_route::route)
+            .configure(route::auth_route::route)
     })
         .bind("127.0.0.1:8088")?
         .run()
