@@ -1,16 +1,14 @@
-use crate::model::user_model::{NewUser, User, InputUser, RegisterUser};
 use crate::schema::users::dsl::*;
-use crate::diesel::QueryDsl;
 use crate::diesel::RunQueryDsl;
 use crate::rim::error::{ApiResult, ApiError};
 
 use actix_web::{web, HttpResponse};
-use diesel::dsl::{delete, insert_into};
-use std::vec::Vec;
+use diesel::dsl::{insert_into};
 
 use crate::Pool;
+use crate::model::auth_model::{RegisterForm, InsertRegisterData};
 
-pub async fn register(db: web::Data<Pool>, item: web::Json<RegisterUser>) -> ApiResult<HttpResponse> {
+pub async fn register(db: web::Data<Pool>, item: web::Form<RegisterForm>) -> ApiResult<HttpResponse> {
     Ok(
         web::block(move || add_user(db, item))
             .await
@@ -19,13 +17,15 @@ pub async fn register(db: web::Data<Pool>, item: web::Json<RegisterUser>) -> Api
     )
 }
 
-fn add_user(pool: web::Data<Pool>, item: web::Json<RegisterUser>) -> Result<usize, diesel::result::Error> {
+fn add_user(pool: web::Data<Pool>, item: web::Form<RegisterForm>) -> Result<usize, diesel::result::Error> {
     let conn = pool.get().unwrap();
-    let new_user = NewUser {
-        first_name: &item.first_name,
-        last_name: &item.last_name,
-        email: &item.email,
-        created_at: chrono::Local::now().naive_local(),
+
+    let new_user = InsertRegisterData {
+        first_name: item.first_name.to_string(),
+        last_name: item.last_name.to_string(),
+        email: item.email.to_string(),
+        password: item.password.to_string(),
+        updated_at: chrono::Local::now().naive_local(),
     };
 
     Ok(
