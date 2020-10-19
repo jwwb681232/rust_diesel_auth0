@@ -53,11 +53,14 @@ pub async fn add_user(db: web::Data<Pool>, item: web::Json<InputUser>) -> ApiRes
 
 fn add_single_user(pool: web::Data<Pool>, item: web::Json<InputUser>) -> Result<usize, diesel::result::Error> {
     let conn = pool.get().unwrap();
+    let now = chrono::Local::now().naive_local();
     let new_user = NewUser {
         first_name: &item.first_name,
         last_name: &item.last_name,
         email: &item.email,
-        created_at: chrono::Local::now().naive_local(),
+        password: &item.password,
+        created_at: now,
+        updated_at: now
     };
 
     Ok(
