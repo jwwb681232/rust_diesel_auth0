@@ -9,8 +9,8 @@ pub struct User {
     pub last_name: String,
     pub email: String,
     pub password: String,
-    pub created_at: chrono::DateTime<chrono::Utc>,
-    pub updated_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub created_at: chrono::NaiveDateTime,
+    pub updated_at: Option<chrono::NaiveDateTime>,
 }
 
 #[async_std::main]
@@ -38,8 +38,7 @@ async fn main() -> Result<(), sqlx::error::Error> {
     }
 
     println!("{:#?}", users);
-
-
+    
     Ok(())
 }
 
