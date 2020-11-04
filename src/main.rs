@@ -1,16 +1,15 @@
 #[macro_use]
 extern crate diesel;
 
-use actix_web::{ App, HttpServer, middleware::Logger};
+use actix_web::{middleware::Logger, App, HttpServer};
 use diesel::prelude::*;
 use diesel::r2d2::{self, ConnectionManager};
 
-mod schema;
 mod handler;
 mod model;
 mod rim;
-mod extractor;
 mod route;
+mod schema;
 
 pub type Pool = r2d2::Pool<ConnectionManager<MysqlConnection>>;
 
@@ -33,9 +32,8 @@ async fn main() -> std::io::Result<()> {
             .wrap(Logger::new("%a %r %s %t"))
             .data(pool.clone())
             .configure(route::user_route::route)
-            .configure(route::auth_route::route)
     })
-        .bind("127.0.0.1:8088")?
-        .run()
-        .await
+    .bind("127.0.0.1:8888")?
+    .run()
+    .await
 }
